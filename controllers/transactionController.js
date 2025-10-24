@@ -1,12 +1,12 @@
 // controllers/transactionController.js
 import Transaction from '../models/transactionModel.js';
+import { asyncHandler } from '../middleware/asyncHandler.js';
 
-
-export const fetchTransactions = async (req, res, next) => {
+export const fetchTransactions = asyncHandler(async (req, res) => {
   const filters = { userId: req.user.id, ...req.query };
   const transactions = await Transaction.find(filters).sort({ date: -1 });
   res.json(transactions);
-};
+});
 
 export const addTransaction = async (req, res, next) => {
   const newTx = new Transaction({ ...req.body, userId: req.user.id });
@@ -29,3 +29,4 @@ export const removeTransaction = async (req, res, next) => {
   await Transaction.findByIdAndDelete(id);
   res.status(204).end();
 };
+

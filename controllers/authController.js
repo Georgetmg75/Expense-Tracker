@@ -2,6 +2,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
+import { asyncHandler } from '../middleware/asyncHandler.js';
 
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
@@ -37,3 +38,9 @@ export const getMe = async (req, res) => {
   const user = await User.findById(req.user.id).select('-password');
   res.json(user);
 };
+
+export const fetchTransactions = asyncHandler(async (req, res) => {
+  const filters = { userId: req.user.id, ...req.query };
+  const transactions = await Transaction.find(filters).sort({ date: -1 });
+  res.json(transactions);
+});
