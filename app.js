@@ -7,6 +7,7 @@ import summaryRoutes from './routes/summaryRoutes.js';
 import helmet from 'helmet';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
+import expenseRoutes from './routes/expenses.js';
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(compression());
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/summary', summaryRoutes);
+app.use('/api/expenses', expenseRoutes);
 
 app.get('/', (req, res) => {
   res.send('🚀 Expense Tracker backend is running');
