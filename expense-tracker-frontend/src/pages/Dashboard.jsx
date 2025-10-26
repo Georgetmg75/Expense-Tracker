@@ -7,10 +7,7 @@ export default function Dashboard() {
   const [form, setForm] = useState({ date: '', category: '', amount: '' });
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    console.log("Dashboard mounted");
-    fetchTransactions();
-  }, []);
+
 
   
   const fetchTransactions = async () => {

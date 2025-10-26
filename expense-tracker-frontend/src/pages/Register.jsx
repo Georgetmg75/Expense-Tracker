@@ -7,18 +7,22 @@ export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      const res = await API.post('/auth/register', { name, email, password });
-      localStorage.setItem('token', res.data.token);
-      navigate('/');
+      await API.post('/auth/register', { name, email, password });
+      navigate('/login'); // ✅ Redirect to login after success
     } catch (err) {
       alert(err.response?.data?.message || 'Registration failed');
+    } finally {
+      setLoading(false);
     }
   };
+
 
   return (
     <div className="max-w-md mx-auto mt-20 p-6 bg-white shadow rounded">

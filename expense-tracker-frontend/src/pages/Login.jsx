@@ -13,15 +13,17 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await API.post('/auth/login', { email, password });
-      localStorage.setItem('token', res.data.token);
-      navigate('/');
+      const response = await API.post('/auth/login', { email, password });
+      localStorage.setItem('token', response.data.token);
+      navigate('/dashboard'); // ✅ Redirect to protected dashboard
     } catch (err) {
       alert(err.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
+
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
