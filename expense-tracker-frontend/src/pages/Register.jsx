@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../services/api';
 
+
 export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -15,7 +16,7 @@ export default function Register() {
     setLoading(true);
     try {
       await API.post('/auth/register', { name, email, password });
-      navigate('/login'); // ✅ Redirect to login after success
+      navigate('/login'); // ✅ Redirect to login after success on to login
     } catch (err) {
       alert(err.response?.data?.message || 'Registration failed');
     } finally {
