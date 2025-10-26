@@ -16,7 +16,7 @@ export default function Register() {
     setLoading(true);
     try {
       await API.post('/auth/register', { name, email, password });
-      navigate('/login'); // ✅ Redirect to login after success on to login
+      navigate('/login'); // ✅ Redirect to login after success on to register
     } catch (err) {
       alert(err.response?.data?.message || 'Registration failed');
     } finally {
