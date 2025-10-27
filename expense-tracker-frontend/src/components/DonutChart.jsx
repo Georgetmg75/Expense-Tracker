@@ -24,6 +24,21 @@ export default function DonutChart({ budgetTables, totalSalary }) {
     ],
   };
 
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'right',
+        labels: {
+          color: '#888',
+          boxWidth: 12,
+          padding: 10,
+        },
+      },
+    },
+  };
+
   const centerText = {
     id: 'centerText',
     beforeDraw(chart) {
@@ -33,16 +48,24 @@ export default function DonutChart({ budgetTables, totalSalary }) {
       ctx.font = 'bold 14px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#333';
+
+      const isDark = document.documentElement.classList.contains('dark');
+      ctx.fillStyle = isDark ? '#f3f4f6' : '#333';
+
       ctx.fillText(`Total Salary: ₹${totalSalary}`, width / 2, chart.height / 2);
     },
   };
 
   return (
-    <div className="w-full sm:w-1/2 p-2">
-      <div className="bg-white shadow rounded p-4">
-        <h3 className="text-md font-semibold mb-2 text-left">Expense Distribution</h3>
-        <Doughnut data={data} plugins={[centerText]} />
+    <div className="w-full p-2">
+      <div className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 shadow rounded p-4 transition-colors duration-300">
+        <h3 className="text-md font-semibold mb-4 text-left">Expense Distribution</h3>
+        <div className="flex flex-col md:flex-row gap-6 items-start">
+          {/* Chart */}
+          <div className="w-full md:w-2/3 h-72">
+            <Doughnut data={data} options={options} plugins={[centerText]} />
+          </div>
+        </div>
       </div>
     </div>
   );

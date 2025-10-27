@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import API from '../services/api';
+import md5 from 'md5'; // ✅ Import md5 for Gravatar
+
 import {
   container,
   card,
@@ -17,11 +19,25 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // ✅ Gravatar URL generator with identicon fallback
+  const getGravatarUrl = (email) => {
+    const hash = md5(email.trim().toLowerCase());
+    return `https://www.gravatar.com/avatar/${hash}?d=identicon`;
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await API.post('/auth/login', { email, password });
+      const res = await API.post('/auth/login', { email, password });
+
+      // ✅ Extract name from response or fallback to email prefix
+      const name = res.data?.name || email.split('@')[0];
+      const avatar = getGravatarUrl(email);
+
+      // ✅ Store user info for dashboard
+      localStorage.setItem('user', JSON.stringify({ name, avatar }));
+
       navigate('/dashboard');
     } catch (err) {
       alert(err.response?.data?.message || 'Login failed');

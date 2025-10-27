@@ -14,9 +14,9 @@ export default function ExpenseTable({
   const remaining = data.budget - data.expenses.reduce((sum, e) => sum + e.amount, 0);
 
   return (
-    <table className="w-full table-auto">
+    <table className="w-full table-auto text-gray-800 dark:text-gray-100 transition-colors duration-300">
       <thead>
-        <tr className="bg-gray-200 text-left">
+        <tr className="bg-gray-200 dark:bg-gray-700 text-left">
           <th className="px-4 py-2">Date</th>
           <th className="px-4 py-2">Note</th>
           <th className="px-4 py-2">Amount</th>
@@ -32,13 +32,13 @@ export default function ExpenseTable({
       <tbody>
         {data.expenses.length === 0 ? (
           <tr>
-            <td colSpan="5" className="px-4 py-2 text-gray-500">No expenses yet.</td>
+            <td colSpan="5" className="px-4 py-2 text-gray-500 dark:text-gray-400">No expenses yet.</td>
           </tr>
         ) : (
           data.expenses.map((exp, idx) => {
             const editing = isEditing && editIndex === idx;
             return (
-              <tr key={idx} className="border-t">
+              <tr key={idx} className="border-t border-gray-300 dark:border-gray-600">
                 {editing ? (
                   <>
                     <td className="px-4 py-2">
@@ -46,7 +46,7 @@ export default function ExpenseTable({
                         type="date"
                         value={exp.date}
                         onChange={(e) => onFieldChange(idx, 'date', e.target.value)}
-                        className="border px-2 py-1 rounded"
+                        className="border border-gray-300 dark:border-gray-600 px-2 py-1 rounded bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100"
                       />
                     </td>
                     <td className="px-4 py-2">
@@ -54,7 +54,7 @@ export default function ExpenseTable({
                         type="text"
                         value={exp.note}
                         onChange={(e) => onFieldChange(idx, 'note', e.target.value)}
-                        className="border px-2 py-1 rounded"
+                        className="border border-gray-300 dark:border-gray-600 px-2 py-1 rounded bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100"
                       />
                     </td>
                     <td className="px-4 py-2">
@@ -62,12 +62,12 @@ export default function ExpenseTable({
                         type="number"
                         value={exp.amount}
                         onChange={(e) => onFieldChange(idx, 'amount', e.target.value)}
-                        className="border px-2 py-1 rounded"
+                        className="border border-gray-300 dark:border-gray-600 px-2 py-1 rounded bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100"
                       />
                     </td>
                     <td className="px-4 py-2">
-                      <button className="text-green-600 hover:underline mr-2" onClick={onSave}>Save</button>
-                      <button className="text-gray-600 hover:underline" onClick={onCancel}>Cancel</button>
+                      <button className="text-green-600 dark:text-green-400 hover:underline mr-2" onClick={onSave}>Save</button>
+                      <button className="text-gray-600 dark:text-gray-400 hover:underline" onClick={onCancel}>Cancel</button>
                     </td>
                     <td></td>
                   </>
@@ -77,8 +77,8 @@ export default function ExpenseTable({
                     <td className="px-4 py-2">{exp.note}</td>
                     <td className="px-4 py-2">₹{exp.amount}</td>
                     <td className="px-4 py-2">
-                      <button className="text-blue-600 hover:underline mr-2" onClick={() => onEdit(idx)}>Edit</button>
-                      <button className="text-red-600 hover:underline" onClick={() => onDelete(idx)}>Delete</button>
+                      <button className="text-blue-600 dark:text-blue-400 hover:underline mr-2" onClick={() => onEdit(idx)}>Edit</button>
+                      <button className="text-red-600 dark:text-red-400 hover:underline" onClick={() => onDelete(idx)}>Delete</button>
                     </td>
                     <td></td>
                   </>
