@@ -1,7 +1,15 @@
 // src/pages/Login.jsx
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import API from '../services/api';
+import {
+  container,
+  card,
+  heading,
+  input,
+  button,
+  link as linkStyle
+} from '../styles/loginStyles';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -13,9 +21,8 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await API.post('/auth/login', { email, password });
-      localStorage.setItem('token', response.data.token);
-      navigate('/dashboard'); // ✅ Redirect to protected dashboard
+      await API.post('/auth/login', { email, password });
+      navigate('/dashboard');
     } catch (err) {
       alert(err.response?.data?.message || 'Login failed');
     } finally {
@@ -23,40 +30,38 @@ export default function Login() {
     }
   };
 
-
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full bg-white p-8 rounded shadow">
-        <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Login</h2>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-2 rounded text-white font-semibold transition ${
-              loading ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-            }`}
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-      </div>
+    <div className={container}>
+      <form onSubmit={handleLogin} className={card}>
+        <div className="flex flex-col items-center mb-6">
+          <img src="/logo.jpg" alt="Logo" className="w-12 h-12 mb-2" />
+          <h1 className={heading}>Log In</h1>
+        </div>
+
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className={input}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className={input}
+        />
+
+        <button type="submit" className={`${button} mt-2`} disabled={loading}>
+          {loading ? 'Logging in...' : 'Log In'}
+        </button>
+
+        <p className={linkStyle}>
+          Don’t have an account?{' '}
+          <Link to="/register" className="underline text-green-600">Create one</Link>
+        </p>
+      </form>
     </div>
   );
 }

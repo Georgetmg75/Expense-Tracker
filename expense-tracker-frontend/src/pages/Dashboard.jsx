@@ -1,11 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import API from '../services/api';
-import CategoryGrid from '../components/CategoryGrid';
-import ExpenseForm from '../components/ExpenseForm';
-import ExpenseTable from '../components/ExpenseTable';
-import DonutChart from '../components/DonutChart';
-import SalaryEditor from '../components/SalaryEditor';
-import CategoryBudgetEditor from '../components/CategoryBudgetEditor';
+import DashboardBuild from '../components/DashboardBuild';
 
 const categories = [
   { name: 'Monthly Bills', icon: '💡' },
@@ -21,6 +16,8 @@ const categories = [
 ];
 
 export default function Dashboard() {
+  const dashboardRef = useRef(null);
+
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [budgetTables, setBudgetTables] = useState({});
@@ -33,6 +30,11 @@ export default function Dashboard() {
   const handleCategoryClick = (categoryName) => {
     setSelectedCategory(categoryName);
     setCategoryBudgetInput(budgetTables[categoryName]?.budget?.toString() || '');
+
+    // Trigger smooth scroll to budget section
+    setTimeout(() => {
+      dashboardRef.current?.scrollToBudget();
+    }, 100);
   };
 
   const handleSetCategoryBudget = () => {
@@ -138,113 +140,27 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Dashboard</h1>
-
-      {/* Chart + Salary Editor Side-by-Side */}
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-start mb-6 gap-4">
-        <DonutChart budgetTables={budgetTables} totalSalary={totalSalary} />
-        <SalaryEditor totalSalary={totalSalary} setTotalSalary={setTotalSalary} />
-      </div>
-
-      <CategoryGrid categories={categories} onClick={handleCategoryClick} />
-
-      {/* Inline Budget Input with Add Button */}
-      {selectedCategory && (
-        <div className="max-w-md mx-auto mb-6 bg-white p-4 rounded shadow">
-          <h3 className="text-lg font-semibold mb-2">Set Budget for {selectedCategory}</h3>
-          <div className="flex gap-2">
-            <input
-              type="number"
-              value={categoryBudgetInput}
-              onChange={(e) => setCategoryBudgetInput(e.target.value)}
-              className="w-full px-4 py-2 border rounded"
-              placeholder="Enter budget (₹)"
-            />
-            <button
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              onClick={handleSetCategoryBudget}
-            >
-              Add
-            </button>
-          </div>
-        </div>
-      )}
-
-      {Object.entries(budgetTables).map(([category, data]) => (
-        <div key={category} className="bg-white shadow rounded p-4 mb-6">
-          <h2 className="text-xl font-bold mb-4 flex justify-between items-center">
-            {category}
-            <CategoryBudgetEditor
-              category={category}
-              budget={data.budget}
-              onEdit={handleCategoryClick}
-              onDelete={handleDeleteCategoryBudget}
-            />
-          </h2>
-
-          <ExpenseForm
-            form={expenseForms[category]}
-            onChange={(field, value) => handleExpenseChange(category, field, value)}
-            onSubmit={(e) => handleExpenseAdd(e, category)}
-          />
-
-          <ExpenseTable
-            category={category}
-            data={data}
-            isEditing={editState.category === category}
-            editIndex={editState.index}
-            onEdit={(index) => setEditState({ category, index })}
-            onCancel={() => setEditState({ category: null, index: null })}
-            onSave={() => setEditState({ category: null, index: null })}
-            onDelete={(index) => handleDeleteExpense(category, index)}
-            onFieldChange={(index, field, value) => updateExpenseField(category, index, field, value)}
-          />
-        </div>
-      ))}
-
-      {/* Legacy Transaction Table */}
-      {loading ? (
-        <p className="text-center text-gray-500">Loading transactions...</p>
-      ) : (
-        <div className="bg-white shadow rounded p-4">
-          {transactions.length === 0 ? (
-            <p className="text-gray-600">No transactions found.</p>
-          ) : (
-            <table className="w-full table-auto">
-              <thead>
-                <tr className="bg-gray-200 text-left">
-                  <th className="px-4 py-2">Date</th>
-                  <th className="px-4 py-2">Category</th>
-                  <th className="px-4 py-2">Amount</th>
-                  <th className="px-4 py-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transactions.map(tx => (
-                  <tr key={tx._id} className="border-t">
-                    <td className="px-4 py-2">
-                      {tx.date
-                        ? new Date(tx.date).toLocaleDateString('en-IN', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric',
-                          })
-                        : '-'}
-                    </td>
-                    <td className="px-4 py-2">{tx.category}</td>
-                    <td className="px-4 py-2">₹{tx.amount}</td>
-                    <td className="px-4 py-2">
-                      <button className="text-blue-600 hover:underline mr-2">Edit</button>
-                      <button className="text-red-600 hover:underline">Delete</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      )}
-    </div>
+    <DashboardBuild
+      ref={dashboardRef}
+      categories={categories}
+      budgetTables={budgetTables}
+      totalSalary={totalSalary}
+      setTotalSalary={setTotalSalary}
+      selectedCategory={selectedCategory}
+      categoryBudgetInput={categoryBudgetInput}
+      setCategoryBudgetInput={setCategoryBudgetInput}
+      handleSetCategoryBudget={handleSetCategoryBudget}
+      handleCategoryClick={handleCategoryClick}
+      handleDeleteCategoryBudget={handleDeleteCategoryBudget}
+      expenseForms={expenseForms}
+      handleExpenseChange={handleExpenseChange}
+      handleExpenseAdd={handleExpenseAdd}
+      editState={editState}
+      setEditState={setEditState}
+      updateExpenseField={updateExpenseField}
+      handleDeleteExpense={handleDeleteExpense}
+      transactions={transactions}
+      loading={loading}
+    />
   );
-}    
+}
