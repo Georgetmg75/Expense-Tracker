@@ -3,6 +3,9 @@ import API from '../services/api';
 import CategoryGrid from '../components/CategoryGrid';
 import ExpenseForm from '../components/ExpenseForm';
 import ExpenseTable from '../components/ExpenseTable';
+import DonutChart from '../components/DonutChart';
+import SalaryEditor from '../components/SalaryEditor';
+import CategoryBudgetEditor from '../components/CategoryBudgetEditor';
 
 const categories = [
   { name: 'Monthly Bills', icon: '💡' },
@@ -23,24 +26,38 @@ export default function Dashboard() {
   const [budgetTables, setBudgetTables] = useState({});
   const [expenseForms, setExpenseForms] = useState({});
   const [editState, setEditState] = useState({ category: null, index: null });
+  const [totalSalary, setTotalSalary] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [categoryBudgetInput, setCategoryBudgetInput] = useState('');
 
   const handleCategoryClick = (categoryName) => {
-    if (!budgetTables[categoryName]) {
-      const userBudget = prompt(`Enter budget for ${categoryName} (₹):`);
-      if (userBudget && !isNaN(userBudget)) {
-        setBudgetTables(prev => ({
-          ...prev,
-          [categoryName]: {
-            budget: parseInt(userBudget),
-            expenses: []
-          }
-        }));
-        setExpenseForms(prev => ({
-          ...prev,
-          [categoryName]: { date: '', note: '', amount: '' }
-        }));
-      }
+    setSelectedCategory(categoryName);
+    setCategoryBudgetInput(budgetTables[categoryName]?.budget?.toString() || '');
+  };
+
+  const handleSetCategoryBudget = () => {
+    const value = parseInt(categoryBudgetInput);
+    if (!isNaN(value)) {
+      setBudgetTables(prev => ({
+        ...prev,
+        [selectedCategory]: {
+          budget: value,
+          expenses: prev[selectedCategory]?.expenses || []
+        }
+      }));
+      setExpenseForms(prev => ({
+        ...prev,
+        [selectedCategory]: prev[selectedCategory] || { date: '', note: '', amount: '' }
+      }));
+      setSelectedCategory(null);
+      setCategoryBudgetInput('');
     }
+  };
+
+  const handleDeleteCategoryBudget = (category) => {
+    const updated = { ...budgetTables };
+    delete updated[category];
+    setBudgetTables(updated);
   };
 
   const handleExpenseChange = (category, field, value) => {
@@ -124,11 +141,47 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-100 p-6">
       <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Dashboard</h1>
 
+      {/* Chart + Salary Editor Side-by-Side */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-start mb-6 gap-4">
+        <DonutChart budgetTables={budgetTables} totalSalary={totalSalary} />
+        <SalaryEditor totalSalary={totalSalary} setTotalSalary={setTotalSalary} />
+      </div>
+
       <CategoryGrid categories={categories} onClick={handleCategoryClick} />
+
+      {/* Inline Budget Input with Add Button */}
+      {selectedCategory && (
+        <div className="max-w-md mx-auto mb-6 bg-white p-4 rounded shadow">
+          <h3 className="text-lg font-semibold mb-2">Set Budget for {selectedCategory}</h3>
+          <div className="flex gap-2">
+            <input
+              type="number"
+              value={categoryBudgetInput}
+              onChange={(e) => setCategoryBudgetInput(e.target.value)}
+              className="w-full px-4 py-2 border rounded"
+              placeholder="Enter budget (₹)"
+            />
+            <button
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              onClick={handleSetCategoryBudget}
+            >
+              Add
+            </button>
+          </div>
+        </div>
+      )}
 
       {Object.entries(budgetTables).map(([category, data]) => (
         <div key={category} className="bg-white shadow rounded p-4 mb-6">
-          <h2 className="text-xl font-bold mb-4">{category}</h2>
+          <h2 className="text-xl font-bold mb-4 flex justify-between items-center">
+            {category}
+            <CategoryBudgetEditor
+              category={category}
+              budget={data.budget}
+              onEdit={handleCategoryClick}
+              onDelete={handleDeleteCategoryBudget}
+            />
+          </h2>
 
           <ExpenseForm
             form={expenseForms[category]}
@@ -194,4 +247,4 @@ export default function Dashboard() {
       )}
     </div>
   );
-}
+}    
