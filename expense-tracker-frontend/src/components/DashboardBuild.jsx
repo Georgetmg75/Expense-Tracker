@@ -6,6 +6,7 @@ import ExpenseForm from './ExpenseForm';
 import ExpenseTable from './ExpenseTable';
 import CategoryBudgetEditor from './CategoryBudgetEditor';
 import Navbar from './Navbar';
+import toast from 'react-hot-toast'; // ✅ added
 
 const DashboardBuild = forwardRef(({
   user,
@@ -47,6 +48,16 @@ const DashboardBuild = forwardRef(({
   }, 0);
 
   const remainingBalance = totalSalary - totalExpenses;
+
+  const handleAddBudget = () => {
+    handleSetCategoryBudget();
+    toast.success(`Budget added for ${selectedCategory}`);
+  };
+
+  const handleDeleteBudget = (category) => {
+    handleDeleteCategoryBudget(category);
+    toast.success(`Deleted budget for ${category}`);
+  };
 
   return (
     <>
@@ -100,7 +111,7 @@ const DashboardBuild = forwardRef(({
                 />
                 <button
                   className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-                  onClick={handleSetCategoryBudget}
+                  onClick={handleAddBudget}
                 >
                   Add
                 </button>
@@ -117,7 +128,7 @@ const DashboardBuild = forwardRef(({
                     category={category}
                     budget={data.budget}
                     onEdit={handleCategoryClick}
-                    onDelete={handleDeleteCategoryBudget}
+                    onDelete={() => handleDeleteBudget(category)}
                   />
                 </h2>
 

@@ -1,12 +1,28 @@
 import React from 'react';
+import toast from 'react-hot-toast'; // ✅ added
 
 export default function ExpenseForm({ form, onChange, onSubmit }) {
-  // ✅ Fallback to prevent crash if form is undefined
   const safeForm = form || { date: '', note: '', amount: '' };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!safeForm.date || !safeForm.note || !safeForm.amount) {
+      toast.error('Please fill out all fields');
+      return;
+    }
+
+    if (isNaN(parseInt(safeForm.amount))) {
+      toast.error('Amount must be a number');
+      return;
+    }
+
+    onSubmit(e); // ✅ delegate to parent handler
+  };
 
   return (
     <form
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       className="flex flex-wrap gap-4 mb-4 text-gray-800 dark:text-gray-100 transition-colors duration-300"
     >
       <input

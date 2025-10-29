@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import API from '../services/api';
 import DashboardBuild from '../components/DashboardBuild';
+import toast from 'react-hot-toast'; // ✅ added
 
 const categories = [
   { name: 'Bills & Rechange', icon: '💡' },
@@ -61,15 +62,19 @@ export default function Dashboard() {
       setExpenseForms(initialForms);
     } catch (err) {
       console.error('Failed to load dashboard:', err.message);
+      toast.error('Failed to load dashboard');
     }
   };
 
   useEffect(() => {
     if (!loading) {
       const timeout = setTimeout(() => {
-        API.post('/dashboard', { totalSalary, budgetTables }).catch(err =>
-          console.error('Failed to save dashboard:', err.message)
-        );
+        API.post('/dashboard', { totalSalary, budgetTables })
+          .then(() => toast.success('Dashboard saved!'))
+          .catch(err => {
+            console.error('Failed to save dashboard:', err.message);
+            toast.error('Failed to save dashboard');
+          });
       }, 500);
 
       return () => clearTimeout(timeout);
@@ -82,7 +87,7 @@ export default function Dashboard() {
       setTransactions(res.data);
     } catch (err) {
       console.error('Transaction fetch failed:', err.message);
-      alert('Failed to fetch transactions');
+      toast.error('Failed to fetch transactions');
     } finally {
       setLoading(false);
     }
@@ -110,6 +115,7 @@ export default function Dashboard() {
         ...prev,
         [selectedCategory]: prev[selectedCategory] || { date: '', note: '', amount: '' }
       }));
+      toast.success(`Budget set for ${selectedCategory}`);
       setSelectedCategory(null);
       setCategoryBudgetInput('');
     }
@@ -119,6 +125,7 @@ export default function Dashboard() {
     const updated = { ...budgetTables };
     delete updated[category];
     setBudgetTables(updated);
+    toast.success(`Deleted budget for ${category}`);
   };
 
   const handleExpenseChange = (category, field, value) => {
@@ -150,6 +157,7 @@ export default function Dashboard() {
       ...prev,
       [category]: { date: '', note: '', amount: '' }
     }));
+    toast.success(`Expense added to ${category}`);
   };
 
   const updateExpenseField = (category, index, field, value) => {
@@ -181,6 +189,7 @@ export default function Dashboard() {
         }
       };
     });
+    toast.success(`Expense deleted from ${category}`);
   };
 
   return (
