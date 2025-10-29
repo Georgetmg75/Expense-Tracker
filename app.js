@@ -9,7 +9,9 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import expenseRoutes from './routes/expenses.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+import debug from 'debug';
 
+const log = debug('expense-tracker:server');
 const app = express();
 
 app.use(cors());
@@ -37,8 +39,9 @@ app.use(limiter); // ✅ Apply globally
 
 // ✅ Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err.message);
+  log('❌ Unhandled error:', err.stack || err.message);
   res.status(500).json({ message: 'Internal server error' });
 });
 
 export default app;
+
