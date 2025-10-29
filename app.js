@@ -14,7 +14,10 @@ import debug from 'debug';
 const log = debug('expense-tracker:server');
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173', 'https://your-frontend.vercel.app'],
+  credentials: true,
+}));
 app.use(express.json());
 app.use(helmet());
 app.use(compression());
