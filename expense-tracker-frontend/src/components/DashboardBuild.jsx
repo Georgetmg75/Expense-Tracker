@@ -40,7 +40,9 @@ const DashboardBuild = forwardRef(({
   }));
 
   const totalExpenses = Object.values(budgetTables).reduce((sum, category) => {
-    const categoryTotal = category.expenses?.reduce((acc, exp) => acc + (exp.amount || 0), 0) || 0;
+    const categoryTotal = Array.isArray(category.expenses)
+      ? category.expenses.reduce((acc, exp) => acc + (exp.amount || 0), 0)
+      : 0;
     return sum + categoryTotal;
   }, 0);
 
@@ -79,7 +81,6 @@ const DashboardBuild = forwardRef(({
               <DonutChart budgetTables={budgetTables} totalSalary={totalSalary} />
             </div>
           </div>
-
         </div>
 
         {/* Bottom Section */}
@@ -121,14 +122,17 @@ const DashboardBuild = forwardRef(({
                 </h2>
 
                 <ExpenseForm
-                  form={expenseForms[category]}
+                  form={expenseForms[category] || { date: '', note: '', amount: '' }}
                   onChange={(field, value) => handleExpenseChange(category, field, value)}
                   onSubmit={(e) => handleExpenseAdd(e, category)}
                 />
 
                 <ExpenseTable
                   category={category}
-                  data={data}
+                  data={{
+                    ...data,
+                    expenses: Array.isArray(data.expenses) ? data.expenses : []
+                  }}
                   isEditing={editState.category === category}
                   editIndex={editState.index}
                   onEdit={(index) => setEditState({ category, index })}
@@ -146,35 +150,43 @@ const DashboardBuild = forwardRef(({
         <div className="mt-8">
           {loading ? (
             <p className="text-center text-gray-500 dark:text-gray-300">Loading transactions...</p>
+          ) : transactions.length === 0 ? (
+            <div className="bg-white dark:bg-gray-800 shadow rounded p-4">
+              <p className="text-gray-600 dark:text-gray-300">No transactions found.</p>
+            </div>
           ) : (
             <div className="bg-white dark:bg-gray-800 shadow rounded p-4">
-              {transactions.length === 0 ? (
-                <p className="text-gray-600 dark:text-gray-300">No transactions found.</p>
-              ) : (
-                <table className="w-full table-auto">
-                  <thead>
-                    <tr className="bg-gray-200 dark:bg-gray-700 text-left">
-                      <th className="px-4 py-2">Date</th>
-                      <th className="px-4 py-2">Category</th>
-                      <th className="px-4 py-2">Amount</th>
-                      <th className="px-4 py-2">Actions</th>
+              <table className="w-full table-auto">
+                <thead>
+                  <tr className="bg-gray-200 dark:bg-gray-700 text-left">
+                    <th className="px-4 py-2">Date</th>
+                    <th className="px-4 py-2">Category</th>
+                    <th className="px-4 py-2">Amount</th>
+                    <th className="px-4 py-2">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {transactions.map(tx => (
+                    <tr key={tx._id} className="border-t border-gray-300 dark:border-gray-600">
+                      <td className="px-4 py-2">
+                        {tx.date
+                          ? new Date(tx.date).toLocaleDateString('en-IN', {
+                              day: '2-digit',
+                              month: 'short',
+                              year: 'numeric'
+                            })
+                          : '-'}
+                      </td>
+                      <td className="px-4 py-2">{tx.category}</td>
+                      <td className="px-4 py-2">₹{tx.amount}</td>
+                      <td className="px-4 py-2">
+                        <button className="text-blue-600 hover:underline mr-2">Edit</button>
+                        <button className="text-red-600 hover:underline">Delete</button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {transactions.map(tx => (
-                      <tr key={tx._id} className="border-t border-gray-300 dark:border-gray-600">
-                        <td className="px-4 py-2">{tx.date ? new Date(tx.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}</td>
-                        <td className="px-4 py-2">{tx.category}</td>
-                        <td className="px-4 py-2">₹{tx.amount}</td>
-                        <td className="px-4 py-2">
-                          <button className="text-blue-600 hover:underline mr-2">Edit</button>
-                          <button className="text-red-600 hover:underline">Delete</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>

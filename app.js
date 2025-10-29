@@ -8,6 +8,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import expenseRoutes from './routes/expenses.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use('/api/transactions', transactionRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/summary', summaryRoutes);
 app.use('/api/expenses', expenseRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.get('/', (req, res) => {
   res.send('🚀 Expense Tracker backend is running');
@@ -32,5 +34,11 @@ const limiter = rateLimit({
 });
 
 app.use(limiter); // ✅ Apply globally
+
+// ✅ Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err.message);
+  res.status(500).json({ message: 'Internal server error' });
+});
 
 export default app;

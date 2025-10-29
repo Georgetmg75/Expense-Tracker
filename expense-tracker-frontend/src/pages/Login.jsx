@@ -31,6 +31,9 @@ export default function Login() {
     try {
       const res = await API.post('/auth/login', { email, password });
 
+      // ✅ Save token for authenticated requests
+      localStorage.setItem('token', res.data.token);
+
       // ✅ Extract name from response or fallback to email prefix
       const name = res.data?.name || email.split('@')[0];
       const avatar = getGravatarUrl(email);

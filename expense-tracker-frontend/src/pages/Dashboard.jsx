@@ -29,8 +29,6 @@ export default function Dashboard() {
   const [categoryBudgetInput, setCategoryBudgetInput] = useState('');
 
   useEffect(() => {
-    fetchTransactions();
-
     const storedUser = JSON.parse(localStorage.getItem('user'));
     if (storedUser?.name) {
       setUser({
@@ -38,13 +36,52 @@ export default function Dashboard() {
         avatar: storedUser.avatar || '/logo.jpg'
       });
     }
+
+    fetchTransactions();
+    fetchDashboard();
   }, []);
+
+  const fetchDashboard = async () => {
+    try {
+      const res = await API.get('/dashboard');
+      const raw = res.data.budgetTables || {};
+      const normalized = {};
+      const initialForms = {};
+
+      for (const category in raw) {
+        normalized[category] = {
+          budget: raw[category].budget || 0,
+          expenses: Array.isArray(raw[category].expenses) ? raw[category].expenses : []
+        };
+        initialForms[category] = { date: '', note: '', amount: '' };
+      }
+
+      setTotalSalary(res.data.totalSalary || 0);
+      setBudgetTables(normalized);
+      setExpenseForms(initialForms);
+    } catch (err) {
+      console.error('Failed to load dashboard:', err.message);
+    }
+  };
+
+  useEffect(() => {
+    if (!loading) {
+      const timeout = setTimeout(() => {
+        API.post('/dashboard', { totalSalary, budgetTables }).catch(err =>
+          console.error('Failed to save dashboard:', err.message)
+        );
+      }, 500);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [budgetTables, totalSalary]);
 
   const fetchTransactions = async () => {
     try {
       const res = await API.get('/transactions');
       setTransactions(res.data);
     } catch (err) {
+      console.error('Transaction fetch failed:', err.message);
       alert('Failed to fetch transactions');
     } finally {
       setLoading(false);
@@ -96,7 +133,7 @@ export default function Dashboard() {
 
   const handleExpenseAdd = (e, category) => {
     e.preventDefault();
-    const form = expenseForms[category];
+    const form = expenseForms[category] || { date: '', note: '', amount: '' };
     const newExpense = {
       date: form.date,
       note: form.note,
