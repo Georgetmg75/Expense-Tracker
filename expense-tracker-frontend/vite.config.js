@@ -9,10 +9,13 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:5000', // ✅ Local dev proxy
         changeOrigin: true,
         secure: false,
       },
     },
+  },
+  define: {
+    'process.env': {}, // ✅ Prevents Vite from crashing if process.env is referenced
   },
 });

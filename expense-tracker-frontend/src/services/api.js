@@ -1,9 +1,11 @@
-// src/services/api.js
 import axios from 'axios';
 
+// ✅ Use environment variable for dynamic backend URL
+const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api', // ✅ adjust for production if needed
-  timeout: 10000, // ✅ 10s timeout for slow networks
+  baseURL: apiBase,
+  timeout: 10000,
 });
 
 // ✅ Attach token to every request
@@ -15,7 +17,7 @@ API.interceptors.request.use((req) => {
   return req;
 });
 
-// ✅ Log errors globally (optional: trigger toast)
+// ✅ Log errors globally
 API.interceptors.response.use(
   (res) => res,
   (err) => {
