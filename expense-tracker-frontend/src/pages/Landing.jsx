@@ -1,4 +1,3 @@
-// src/pages/Landing.jsx
 import { Link } from 'react-router-dom';
 import {
   logo,
@@ -18,17 +17,27 @@ export default function Landing() {
       <div className="absolute inset-0 bg-black bg-opacity-60"></div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-white text-center px-6 min-h-screen">
+      <div className="relative z-10 flex flex-col items-center justify-center text-white text-center px-4 sm:px-6 min-h-screen">
         <img src="/logo.jpg" alt="Logo" className={`${logo} mx-auto mb-6`} />
-        <h1 className={`${heading} text-white`}>Welcome to Expense Tracker</h1>
-        <p className={`${subtext} text-gray-200 max-w-xl mx-auto`}>
+        <h1 className={`${heading} text-white text-2xl sm:text-4xl font-bold mb-4`}>
+          Welcome to Expense Tracker
+        </h1>
+        <p className={`${subtext} text-gray-200 text-base sm:text-lg max-w-xl mx-auto`}>
           Track your income, budget your spending, and stay financially empowered.
         </p>
-        <div className="space-x-4 mt-6">
-          <Link to="/register" className={`${button} bg-green-500 hover:bg-green-600 text-white`}>
+
+        {/* Buttons */}
+        <div className="mt-6 flex flex-col sm:flex-row gap-4 sm:gap-6 w-full max-w-xs sm:max-w-md">
+          <Link
+            to="/register"
+            className={`${button} w-full px-4 py-3 text-base bg-green-500 hover:bg-green-600 text-white rounded text-center`}
+          >
             Get Started
           </Link>
-          <Link to="/login" className={`${link} text-white underline`}>
+          <Link
+            to="/login"
+            className={`${link} w-full px-4 py-3 text-base text-white underline rounded text-center`}
+          >
             Log In
           </Link>
         </div>

@@ -6,7 +6,7 @@ import ExpenseForm from './ExpenseForm';
 import ExpenseTable from './ExpenseTable';
 import CategoryBudgetEditor from './CategoryBudgetEditor';
 import Navbar from './Navbar';
-import toast from 'react-hot-toast'; // ✅ added
+import toast from 'react-hot-toast';
 
 const DashboardBuild = forwardRef(({
   user,
@@ -63,18 +63,18 @@ const DashboardBuild = forwardRef(({
     <>
       <Navbar user={user} />
 
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-6 font-sans text-gray-800 dark:text-gray-100 transition-colors duration-300 flex flex-col gap-8">
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 px-4 py-6 sm:px-6 font-sans text-gray-800 dark:text-gray-100 transition-colors duration-300 flex flex-col gap-8">
         {/* Top Section */}
         <div className="flex flex-col md:flex-row gap-6">
           {/* Salary Editor */}
-          <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex flex-col gap-6">
+          <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6 flex flex-col gap-6">
             <SalaryEditor
               totalSalary={totalSalary}
               setTotalSalary={setTotalSalary}
               budgetTables={budgetTables}
             />
 
-            <div className="mt-6 grid grid-cols-2 gap-4">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-gray-50 dark:bg-gray-700 border rounded-lg p-4 text-center shadow-sm">
                 <p className="text-sm text-gray-500 dark:text-gray-300">Total Expenses</p>
                 <p className="text-lg font-semibold text-red-600">₹{totalExpenses}</p>
@@ -87,8 +87,8 @@ const DashboardBuild = forwardRef(({
           </div>
 
           {/* Donut Chart */}
-          <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <div className="w-full rs:w-1/2 h-72">
+          <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6">
+            <div className="w-full h-72">
               <DonutChart budgetTables={budgetTables} totalSalary={totalSalary} />
             </div>
           </div>
@@ -101,16 +101,16 @@ const DashboardBuild = forwardRef(({
           {selectedCategory && (
             <div ref={budgetRef} className="max-w-md w-full bg-white dark:bg-gray-800 p-4 rounded shadow">
               <h3 className="text-lg font-semibold mb-2">Set Budget for {selectedCategory}</h3>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="number"
                   value={categoryBudgetInput}
                   onChange={(e) => setCategoryBudgetInput(e.target.value)}
-                  className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
+                  className="w-full px-4 py-3 text-base border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
                   placeholder="Enter budget (₹)"
                 />
                 <button
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                  className="w-full sm:w-auto px-4 py-3 text-base bg-blue-600 text-white rounded hover:bg-blue-700 transition"
                   onClick={handleAddBudget}
                 >
                   Add
@@ -158,7 +158,7 @@ const DashboardBuild = forwardRef(({
         </div>
 
         {/* Transaction Table */}
-        <div className="mt-8">
+        <div className="mt-8 overflow-x-auto">
           {loading ? (
             <p className="text-center text-gray-500 dark:text-gray-300">Loading transactions...</p>
           ) : transactions.length === 0 ? (
@@ -167,7 +167,7 @@ const DashboardBuild = forwardRef(({
             </div>
           ) : (
             <div className="bg-white dark:bg-gray-800 shadow rounded p-4">
-              <table className="w-full table-auto">
+              <table className="w-full table-auto text-sm sm:text-base">
                 <thead>
                   <tr className="bg-gray-200 dark:bg-gray-700 text-left">
                     <th className="px-4 py-2">Date</th>

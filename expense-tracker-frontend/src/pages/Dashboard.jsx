@@ -193,7 +193,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-300">
+    <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-300 px-4 sm:px-6">
       <DashboardBuild
         ref={dashboardRef}
         user={user}
