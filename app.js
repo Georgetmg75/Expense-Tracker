@@ -1,4 +1,3 @@
-// app.js
 import express from 'express';
 import cors from 'cors';
 import transactionRoutes from './routes/transactionRoutes.js';
@@ -28,6 +27,11 @@ app.use('/api/summary', summaryRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
+// ✅ Health check route for Vercel
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
 app.get('/', (req, res) => {
   res.send('🚀 Expense Tracker backend is running');
 });
@@ -47,4 +51,3 @@ app.use((err, req, res, next) => {
 });
 
 export default app;
-
