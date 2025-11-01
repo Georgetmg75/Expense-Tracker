@@ -8,7 +8,9 @@ import authRoutes from './routes/authRoutes.js';
 import summaryRoutes from './routes/summaryRoutes.js';
 import expenseRoutes from './routes/expenses.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+import debug from 'debug';
 
+const log = debug('expense-tracker:server');
 const app = express();
 
 // ✅ CORS setup
