@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Backend for Expense Tracker using Express and MongoDB Atlas",
-  "main": "start.js",
+  "main": "server.js",
   "scripts": {
-    "start": "cross-env DEBUG=expense-tracker:* node start.js",
-    "dev": "cross-env DEBUG=expense-tracker:* nodemon start.js"
+    "start": "cross-env DEBUG=expense-tracker:* node server.js",
+    "dev": "cross-env DEBUG=expense-tracker:* nodemon server.js"
   },
   "keywords": [
     "express",
