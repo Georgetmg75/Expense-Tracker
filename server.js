@@ -32,7 +32,7 @@ const handlerFunction = async (event, context) => {
       statusCode: 500,
       body: JSON.stringify({ message: 'Internal Server Error' }),
     };
-  }
+  }//
 };
 
 export default handlerFunction;
