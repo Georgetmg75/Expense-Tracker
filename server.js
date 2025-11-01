@@ -24,7 +24,7 @@ const ensureDB = async () => {
   return dbPromise;
 };
 
-// EXPORT THE HANDLER FUNCTIONs
+// EXPORT THE HANDLER FUNCTION
 const handlerFunction = async (event, context) => {
   try {
     await ensureDB();
