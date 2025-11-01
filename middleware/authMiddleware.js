@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
-import debug from 'debug';
 
-const log = debug('expense-tracker:auth');
+
+
 /**
  * Middleware to verify JWT token and attach user ID to request
  */
