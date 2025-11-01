@@ -6,42 +6,41 @@ import serverless from 'serverless-http';
 
 dotenv.config();
 
+// CONNECT TO DB ONCE — BEFORE ANY REQUEST
+let dbConnectionPromise = null;
 let handler = null;
 
-// Single connection reuse across Vercel invocations
-let dbPromise = null;
+const ensureDBConnection = async () => {
+  if (dbConnectionPromise) return dbConnectionPromise;
 
+  dbConnectionPromise = connectDB()
+    .then(() => {
+      console.log('MongoDB connected (cold start)');
+    })
+    .catch(err => {
+      console.error('DB connection failed:', err.message);
+      dbConnectionPromise = null;
+      throw err;
+    });
+
+  return dbConnectionPromise;
+};
+
+// Export handler
 export default async function (req, res) {
   try {
-    // Connect to DB once per cold start
-    if (!dbPromise) {
-      dbPromise = connectDB().then(() => {
-        console.log('MongoDB connected successfully');
-      }).catch(err => {
-        console.error('Failed to connect to MongoDB:', err.message);
-        dbPromise = null; // Allow retry on next invocation
-        throw err;
-      });
-    }
-
-    // Wait for DB connection
-    await dbPromise;
+    // Wait for DB before handling request
+    await ensureDBConnection();
 
     // Create handler once
     if (!handler) {
       handler = serverless(expressApp);
     }
 
-    // Forward request
     return handler(req, res);
-
   } catch (err) {
-    console.error('Unhandled server error:', err);
     if (!res.headersSent) {
-      return res.status(500).json({
-        message: 'Internal Server Error',
-        error: process.env.NODE_ENV === 'development' ? err.message : undefined
-      });
+      res.status(500).json({ message: 'Database unavailable' });
     }
   }
 }
