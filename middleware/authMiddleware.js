@@ -1,10 +1,9 @@
+// middleware/authMiddleware.js
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
 
-
-
 /**
- * Middleware to verify JWT token and attach user ID to request
+ * Middleware to verify JWT token and attach user to request
  */
 export const verifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -24,14 +23,14 @@ export const verifyToken = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(decoded.id).select('-password');
     if (!user) {
       console.warn(`❌ Token valid but user not found: ${decoded.id}`);
       return res.status(401).json({ message: 'User not found' });
     }
 
-    req.userId = decoded.id;
-    console.log(`✅ Authenticated user: ${decoded.id}`);
+    req.user = user; // ✅ Attach full user object for downstream use
+    console.log(`✅ Authenticated user: ${user.email}`);
     next();
   } catch (err) {
     console.error(`❌ Token verification failed: ${err.message}`);

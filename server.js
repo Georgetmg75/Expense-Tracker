@@ -1,12 +1,15 @@
+// server.js
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
-import app from './app.js';
+import expressApp from './app.js';
+import serverless from 'serverless-http';
 
 dotenv.config();
 
 let isConnected = false;
+let handler;
 
-export default async function handler(req, res) {
+export default async function(req, res) {
   if (!isConnected) {
     try {
       await connectDB();
@@ -18,5 +21,9 @@ export default async function handler(req, res) {
     }
   }
 
-  return app(req, res);
+  if (!handler) {
+    handler = serverless(expressApp);
+  }
+
+  return handler(req, res);
 }
