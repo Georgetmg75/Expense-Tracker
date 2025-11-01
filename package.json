@@ -1,6 +1,7 @@
 {
   "name": "expense-tracker",
   "version": "1.0.0",
+  "type": "module",
   "description": "Backend for Expense Tracker using Express and MongoDB Atlas",
   "main": "server.js",
   "scripts": {
