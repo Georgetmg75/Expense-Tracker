@@ -19,7 +19,7 @@ app.set('trust proxy', 1);
 
 // ✅ CORS setup
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://expense-tracker-frontend-pink-mu.vercel.app'],
+  origin: ['http://localhost:5173', 'expense-tracker-frontend-tl2d.vercel.app'],
   credentials: true,
 }));
 
