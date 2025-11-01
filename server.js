@@ -1,46 +1,47 @@
 // server.js
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import connectDB from './config/db.js';
-import expressApp from './app.js';
-import serverless from 'serverless-http';
+import app from './app.js';
+import { createHandler } from 'serverless-http';
 
-dotenv.config();
-
-// CRITICAL: CONNECT ONCE AT COLD START
-let connectionPromise = null;
+// SINGLE handler + DB promise
 let handler = null;
+let dbPromise = null;
 
-const ensureConnection = async () => {
-  if (connectionPromise) return connectionPromise;
+const ensureDB = async () => {
+  if (dbPromise) return dbPromise;
 
-  connectionPromise = connectDB()
+  dbPromise = connectDB()
     .then(() => {
-      console.log('MongoDB connected at server start');
+      console.log('MongoDB connected at startup');
     })
     .catch(err => {
       console.error('DB connection failed:', err.message);
-      connectionPromise = null;
+      dbPromise = null;
       throw err;
     });
 
-  return connectionPromise;
+  return dbPromise;
 };
 
-// EXPORT HANDLER
-export default async function (req, res) {
+// EXPORT THE HANDLER FUNCTION
+const handlerFunction = async (event, context) => {
   try {
-    // ENSURE DB IS CONNECTED BEFORE ROUTE RUNS
-    await ensureConnection();
+    await ensureDB();
 
     if (!handler) {
-      handler = serverless(expressApp);
+      handler = createHandler(app);
     }
 
-    return handler(req, res);
-  } catch (err) {
-    console.error('Server startup error:', err);
-    if (!res.headersSent) {
-      res.status(500).json({ message: 'Service unavailable' });
-    }
+    return handler(event, context);
+  } catch (error) {
+    console.error('Server error:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: 'Internal Server Error' }),
+    };
   }
-}
+};
+
+// Export for Vercel
+export default handlerFunction;

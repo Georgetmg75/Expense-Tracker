@@ -1,35 +1,33 @@
 // config/db.js
 import mongoose from 'mongoose';
-import debug from 'debug';
-
-const log = debug('expense-tracker:db');
 
 let isConnected = false;
 
 const connectDB = async () => {
   if (isConnected) {
-    log('Reusing MongoDB connection');
+    console.log('Using existing connection');
     return;
   }
 
-  const uri = process.env.MONGO_URI;
-  if (!uri) throw new Error('MONGO_URI missing');
+  if (!process.env.MONGO_URI) {
+    throw new Error('MONGO_URI is missing');
+  }
 
   try {
-    log('Connecting to MongoDB...');
-    await mongoose.connect(uri, {
-      bufferCommands: false,           // PREVENT BUFFERING
+    console.log('Connecting to MongoDB...');
+    await mongoose.connect(process.env.MONGO_URI, {
+      bufferCommands: false,
       bufferMaxEntries: 0,
-      serverSelectionTimeoutMS: 5000,  // FAIL FAST
+      serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 10000,
     });
 
     isConnected = true;
-    log('MongoDB connected');
-  } catch (err) {
-    log('Connection failed:', err.message);
+    console.log('MongoDB Connected');
+  } catch (error) {
+    console.error('DB Error:', error.message);
     isConnected = false;
-    throw err;
+    throw error;
   }
 };
 
