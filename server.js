@@ -6,41 +6,41 @@ import serverless from 'serverless-http';
 
 dotenv.config();
 
-// CONNECT TO DB ONCE — BEFORE ANY REQUEST
-let dbConnectionPromise = null;
+// CRITICAL: CONNECT ONCE AT COLD START
+let connectionPromise = null;
 let handler = null;
 
-const ensureDBConnection = async () => {
-  if (dbConnectionPromise) return dbConnectionPromise;
+const ensureConnection = async () => {
+  if (connectionPromise) return connectionPromise;
 
-  dbConnectionPromise = connectDB()
+  connectionPromise = connectDB()
     .then(() => {
-      console.log('MongoDB connected (cold start)');
+      console.log('MongoDB connected at server start');
     })
     .catch(err => {
       console.error('DB connection failed:', err.message);
-      dbConnectionPromise = null;
+      connectionPromise = null;
       throw err;
     });
 
-  return dbConnectionPromise;
+  return connectionPromise;
 };
 
-// Export handler
+// EXPORT HANDLER
 export default async function (req, res) {
   try {
-    // Wait for DB before handling request
-    await ensureDBConnection();
+    // ENSURE DB IS CONNECTED BEFORE ROUTE RUNS
+    await ensureConnection();
 
-    // Create handler once
     if (!handler) {
       handler = serverless(expressApp);
     }
 
     return handler(req, res);
   } catch (err) {
+    console.error('Server startup error:', err);
     if (!res.headersSent) {
-      res.status(500).json({ message: 'Database unavailable' });
+      res.status(500).json({ message: 'Service unavailable' });
     }
   }
 }
