@@ -14,7 +14,7 @@ const app = express();
 
 // ✅ CORS setup
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://your-frontend.vercel.app'],
+  origin: ['http://localhost:5173', 'https://expense-tracker-frontend-pink-mu.vercel.app'],
   credentials: true,
 }));
 
