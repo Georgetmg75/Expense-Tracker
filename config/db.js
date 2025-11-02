@@ -30,4 +30,4 @@ const connectDB = async () => {
   }
 };
 
-export { connectDB, mongoose };  // Export mongoose for readyState check
+export default { connectDB, mongoose };  // Export mongoose for readyState check
