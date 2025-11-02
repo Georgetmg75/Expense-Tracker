@@ -9,19 +9,24 @@ let dbPromise = null;
 
 const ensureDB = async () => {
   if (dbPromise) return dbPromise;
-  dbPromise = connectDB()
-    .then(() => console.log('✅ MongoDB connected at startup'))
-    .catch(err => {
+
+  dbPromise = new Promise(async (resolve, reject) => {
+    try {
+      const conn = await connectDB();
+      console.log('✅ MongoDB connected at startup');
+      resolve(conn);
+    } catch (err) {
       console.error('❌ DB connection failed:', err.message);
       dbPromise = null;
-      throw err;
-    });
+      reject(err);
+    }
+  });
+
   return dbPromise;
 };
 
 const handlerFunction = async (event, context) => {
   try {
-    // AWAIT DB HERE — BEFORE ANY ROUTE RUNS //
     await ensureDB();
 
     if (!handler) {
@@ -30,7 +35,7 @@ const handlerFunction = async (event, context) => {
 
     return handler(event, context);
   } catch (error) {
-    console.error('Server error:', error);
+    console.error('❌ Server error:', error);
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },

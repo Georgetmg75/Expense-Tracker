@@ -3,7 +3,8 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import morgan from 'morgan'; // ✅ Optional: request logging
+import morgan from 'morgan';
+import mongoose from 'mongoose';
 
 import transactionRoutes from './routes/transactionRoutes.js';
 import authRoutes from './routes/authRoutes.js';
@@ -18,14 +19,17 @@ app.set('trust proxy', 1);
 
 // ✅ CORS setup
 app.use(cors({
-  origin: ['https://expense-tracker-frontend-ruddy-theta.vercel.app', 'http://localhost:5173' ],
+  origin: [
+    'https://expense-tracker-frontend-ruddy-theta.vercel.app',
+    'http://localhost:5173',
+  ],
   credentials: true,
 }));
 
 // ✅ Middleware
 app.use(express.json());
 app.use(helmet());
-app.use(morgan('dev')); // ✅ Logs requests in dev-friendly format
+app.use(morgan('dev'));
 
 // ✅ Rate limiting
 const limiter = rateLimit({
@@ -44,7 +48,18 @@ app.use('/api/dashboard', dashboardRoutes);
 
 // ✅ Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
+  const readyState = mongoose.connection.readyState;
+  const statusMap = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting',
+  };
+
+  res.json({
+    status: statusMap[readyState] || 'unknown',
+    readyState,
+  });
 });
 
 // ✅ Root route
