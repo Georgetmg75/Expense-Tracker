@@ -1,11 +1,12 @@
 import 'dotenv/config';
 import connectDB from '../config/db.js';
 import app from '../app.js';
-import { createHandler } from 'serverless-http';
+import serverless from 'serverless-http'; // ✅ Correct default import
 
 let handler = null;
 let dbPromise = null;
 
+// ✅ Ensure MongoDB connection is established once
 const ensureDB = async () => {
   if (dbPromise) return dbPromise;
 
@@ -24,12 +25,13 @@ const ensureDB = async () => {
   return dbPromise;
 };
 
+// ✅ Main serverless handler
 const handlerFunction = async (event, context) => {
   try {
     await ensureDB();
 
     if (!handler) {
-      handler = createHandler(app);
+      handler = serverless(app); // ✅ Use default export directly
     }
 
     return handler(event, context);
