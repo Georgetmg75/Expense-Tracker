@@ -2,7 +2,6 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import morgan from 'morgan'; // ✅ Optional: request logging
 
@@ -19,14 +18,13 @@ app.set('trust proxy', 1);
 
 // ✅ CORS setup
 app.use(cors({
-  origin: ['expense-tracker-frontend-ruddy-theta.vercel.app', 'http://localhost:5173' ],
+  origin: ['https://expense-tracker-frontend-ruddy-theta.vercel.app', 'http://localhost:5173' ],
   credentials: true,
 }));
 
 // ✅ Middleware
 app.use(express.json());
 app.use(helmet());
-app.use(compression());
 app.use(morgan('dev')); // ✅ Logs requests in dev-friendly format
 
 // ✅ Rate limiting
