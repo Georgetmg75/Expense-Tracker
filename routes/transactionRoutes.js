@@ -1,3 +1,4 @@
+// src/routes/transactionRoutes.js
 import express from 'express';
 import Transaction from '../models/transactionModel.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
@@ -10,14 +11,10 @@ router.use(verifyToken);
 // ✅ GET: Fetch transactions for authenticated user
 router.get('/', async (req, res) => {
   try {
-    if (!req.user || !req.user._id) {
-      return res.status(401).json({ message: 'User not authenticated' });
-    }
-
-    const transactions = await Transaction.find({ userId: req.user._id });
+    const transactions = await Transaction.find({ userId: req.userId });
     res.json(transactions);
   } catch (err) {
-    console.error('❌ Transaction fetch error:', err.message);
+    console.error('Transaction fetch error:', err.message);
     res.status(500).json({ message: 'Failed to fetch transactions' });
   }
 });
@@ -25,19 +22,11 @@ router.get('/', async (req, res) => {
 // ✅ POST: Add new transaction for authenticated user
 router.post('/', async (req, res) => {
   try {
-    if (!req.user || !req.user._id) {
-      return res.status(401).json({ message: 'User not authenticated' });
-    }
-
-    const transaction = new Transaction({
-      ...req.body,
-      userId: req.user._id,
-    });
-
+    const transaction = new Transaction({ ...req.body, userId: req.userId });
     await transaction.save();
     res.status(201).json(transaction);
   } catch (err) {
-    console.error('❌ Transaction save error:', err.message);
+    console.error('Transaction save error:', err.message);
     res.status(400).json({ message: 'Failed to add transaction' });
   }
 });

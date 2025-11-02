@@ -1,22 +1,20 @@
+// controllers/transactionController.js
 import Transaction from '../models/transactionModel.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 
-// ✅ GET: Fetch transactions for authenticated user
 export const fetchTransactions = asyncHandler(async (req, res) => {
-  const filters = { userId: req.user._id, ...req.query };
+  const filters = { userId: req.user.id, ...req.query };
   const transactions = await Transaction.find(filters).sort({ date: -1 });
   res.json(transactions);
 });
 
-// ✅ POST: Add new transaction
-export const addTransaction = asyncHandler(async (req, res) => {
-  const newTx = new Transaction({ ...req.body, userId: req.user._id });
+export const addTransaction = async (req, res, next) => {
+  const newTx = new Transaction({ ...req.body, userId: req.user.id });
   await newTx.save();
   res.status(201).json(newTx);
-});
+};
 
-// ✅ PUT: Edit transaction
-export const editTransaction = asyncHandler(async (req, res) => {
+export const editTransaction = async (req, res, next) => {
   const { id } = req.params;
   const updatedTx = await Transaction.findByIdAndUpdate(
     id,
@@ -24,11 +22,10 @@ export const editTransaction = asyncHandler(async (req, res) => {
     { new: true }
   );
   res.json(updatedTx);
-});
+};
 
-// ✅ DELETE: Remove transaction
-export const removeTransaction = asyncHandler(async (req, res) => {
+export const removeTransaction = async (req, res, next) => {
   const { id } = req.params;
   await Transaction.findByIdAndDelete(id);
   res.status(204).end();
-});
+};
