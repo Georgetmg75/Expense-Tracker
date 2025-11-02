@@ -1,32 +1,45 @@
 import mongoose from 'mongoose';
 
+const MONGO_URI = process.env.MONGO_URI;
+
+if (!MONGO_URI) {
+  throw new Error('❌ MONGO_URI is missing from environment variables');
+}
+
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
 const connectDB = async () => {
-  if (mongoose.connection.readyState >= 1) {
-    console.log('✅ Using existing MongoDB connection');
-    return;
+  if (cached.conn) {
+    console.log('✅ Using cached MongoDB connection');
+    return cached.conn;
   }
 
-  const uri = process.env.MONGO_URI;
-  if (!uri) {
-    throw new Error('❌ MONGO_URI is missing from environment variables');
-  }
-
-  try {
+  if (!cached.promise) {
     console.log('🔌 Connecting to MongoDB...');
-
-    await mongoose.connect(uri, {
+    cached.promise = mongoose.connect(MONGO_URI, {
       bufferCommands: false,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
       family: 4,
       maxPoolSize: 5,
     });
-
-    console.log('✅ MongoDB Connected. ReadyState:', mongoose.connection.readyState);
-  } catch (error) {
-    console.error('❌ MongoDB connection failed:', error.message);
-    throw error;
   }
+
+  cached.conn = await cached.promise;
+
+  mongoose.connection.on('connected', () => {
+    console.log('✅ MongoDB connected via event');
+  });
+
+  mongoose.connection.on('error', (err) => {
+    console.error('❌ MongoDB connection error via event:', err);
+  });
+
+  return cached.conn;
 };
 
 export default connectDB;
