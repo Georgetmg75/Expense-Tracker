@@ -21,7 +21,7 @@ const ensureDB = async () => {
 
 const handlerFunction = async (event, context) => {
   try {
-    // AWAIT DB HERE — BEFORE ANY ROUTE RUNS
+    // AWAIT DB HERE — BEFORE ANY ROUTE RUNS //
     await ensureDB();
 
     if (!handler) {
