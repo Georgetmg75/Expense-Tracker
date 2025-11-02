@@ -1,33 +1,32 @@
-// config/db.js
 import mongoose from 'mongoose';
 
 const connectDB = async () => {
   if (mongoose.connection.readyState >= 1) {
-    console.log('Using existing MongoDB connection');
+    console.log('✅ Using existing MongoDB connection');
     return;
   }
 
-  if (!process.env.MONGO_URI) {
-    throw new Error('MONGO_URI is missing');
+  const uri = process.env.MONGO_URI;
+  if (!uri) {
+    throw new Error('❌ MONGO_URI is missing from environment variables');
   }
 
   try {
     console.log('🔌 Connecting to MongoDB...');
 
-    await mongoose.connect(process.env.MONGO_URI, {
+    await mongoose.connect(uri, {
       bufferCommands: false,
-      bufferMaxEntries: 0,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
       family: 4,
       maxPoolSize: 5,
     });
 
-    console.log('✅ MongoDB Connected - Ready State:', mongoose.connection.readyState);
+    console.log('✅ MongoDB Connected. ReadyState:', mongoose.connection.readyState);
   } catch (error) {
-    console.error('❌ DB Connection Error:', error.message);
+    console.error('❌ MongoDB connection failed:', error.message);
     throw error;
   }
 };
 
-export default { connectDB, mongoose };  // Export mongoose for readyState check
+export default connectDB;
