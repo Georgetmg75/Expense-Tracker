@@ -15,19 +15,19 @@ const connectDB = async () => {
     console.log('🔌 Connecting to MongoDB...');
 
     await mongoose.connect(process.env.MONGO_URI, {
-      bufferCommands: false,        // ← DISABLE BUFFERING (fixes timeout)
-      bufferMaxEntries: 0,          // ← No queue
-      serverSelectionTimeoutMS: 5000,  // ← Fail fast (5s)
-      socketTimeoutMS: 45000,       // ← Vercel function limit
-      family: 4,                    // ← IPv4 only (faster)
-      maxPoolSize: 5,               // ← Small pool for serverless
+      bufferCommands: false,
+      bufferMaxEntries: 0,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      family: 4,
+      maxPoolSize: 5,
     });
 
-    console.log('✅ MongoDB Connected');
+    console.log('✅ MongoDB Connected - Ready State:', mongoose.connection.readyState);
   } catch (error) {
     console.error('❌ DB Connection Error:', error.message);
     throw error;
   }
 };
 
-export default connectDB;
+export { connectDB, mongoose };  // Export mongoose for readyState check

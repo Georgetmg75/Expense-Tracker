@@ -1,5 +1,9 @@
 // models/userModel.js
 import mongoose from 'mongoose';
+import connectDB from '../config/db.js';
+
+// FORCE CONNECTION BEFORE MODEL USE
+connectDB().catch(err => console.error('Model connection error:', err));
 
 const userSchema = new mongoose.Schema(
   {
