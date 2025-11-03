@@ -2,7 +2,9 @@
 import 'dotenv/config';
 import connectDB from './config/db.js';
 import app from './app.js';
-import { createHandler } from 'serverless-http';
+import serverless from 'serverless-http';
+const createHandler = serverless;
+
 
 // CONNECT DB **IMMEDIATELY**
 await connectDB();
