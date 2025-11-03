@@ -22,7 +22,7 @@ const connectDB = async () => {
     console.log('🔌 Connecting to MongoDB...');
     cached.promise = mongoose.connect(MONGO_URI, {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 30000,
       socketTimeoutMS: 45000,
       family: 4,
       maxPoolSize: 5,
