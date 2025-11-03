@@ -5,27 +5,19 @@ import { verifyToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// GET dashboard
 router.get('/', verifyToken, async (req, res) => {
   try {
-    const userId = req.user._id; // FROM JWT
-    console.log('GET DASHBOARD FOR userId:', userId);
+    const userId = req.user._id;
+    console.log('GET DASHBOARD FOR:', userId);
 
-    const dashboard = await Dashboard.findOne({ userId });
+    const dashboard = await Dashboard.findOne({ userId }).lean();
 
     if (!dashboard) {
       return res.json({ totalSalary: 0, budgetTables: {} });
     }
 
-    // CONVERT MAP TO PLAIN OBJECT
     const plainBudget = Object.fromEntries(
-      Array.from(dashboard.budgetTables.entries()).map(([key, value]) => [
-        key,
-        {
-          budget: value.budget || 0,
-          expenses: Array.isArray(value.expenses) ? value.expenses : []
-        }
-      ])
+      Array.from(dashboard.budgetTables.entries()).map(([k, v]) => [k, v])
     );
 
     res.json({
@@ -38,49 +30,31 @@ router.get('/', verifyToken, async (req, res) => {
   }
 });
 
-// POST / UPDATE dashboard
 router.post('/', verifyToken, async (req, res) => {
-  const { totalSalary, budgetTables: incomingBudget } = req.body;
+  const { totalSalary, budgetTables: incoming } = req.body;
   const userId = req.user._id;
 
-  if (!userId) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-
   try {
-    console.log('SAVING DASHBOARD FOR userId:', userId);
+    console.log('SAVE DASHBOARD FOR:', userId);
 
-    // NORMALIZE TO MAP
-    const normalizedBudget = new Map();
-    for (const [category, data] of Object.entries(incomingBudget || {})) {
-      normalizedBudget.set(category, {
+    const normalized = new Map();
+    for (const [cat, data] of Object.entries(incoming || {})) {
+      normalized.set(cat, {
         budget: Number(data.budget) || 0,
-        expenses: Array.isArray(data.expenses) ? data.expenses.map(e => ({
+        expenses: (data.expenses || []).map(e => ({
           ...e,
           amount: Number(e.amount) || 0
-        })) : []
+        }))
       });
     }
 
-    // UPSERT
     const updated = await Dashboard.findOneAndUpdate(
       { userId },
-      { 
-        totalSalary: Number(totalSalary) || 0,
-        budgetTables: normalizedBudget
-      },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
-    );
+      { totalSalary: Number(totalSalary) || 0, budgetTables: normalized },
+      { upsert: true, new: true }
+    ).lean();
 
-    res.json({
-      message: 'Dashboard saved!',
-      dashboard: {
-        totalSalary: updated.totalSalary,
-        budgetTables: Object.fromEntries(
-          Array.from(updated.budgetTables.entries()).map(([k, v]) => [k, v])
-        )
-      }
-    });
+    res.json({ message: 'Saved!', totalSalary: updated.totalSalary });
   } catch (err) {
     console.error('SAVE ERROR:', err.message);
     res.status(500).json({ message: 'Save failed' });
