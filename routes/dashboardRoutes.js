@@ -16,9 +16,7 @@ router.get('/', verifyToken, async (req, res) => {
       return res.json({ totalSalary: 0, budgetTables: {} });
     }
 
-    const plainBudget = Object.fromEntries(
-      Array.from(dashboard.budgetTables.entries()).map(([k, v]) => [k, v])
-    );
+    const plainBudget = dashboard.budgetTables?.toObject?.() || {};
 
     res.json({
       totalSalary: dashboard.totalSalary || 0,
@@ -29,6 +27,7 @@ router.get('/', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Failed to load' });
   }
 });
+
 
 router.post('/', verifyToken, async (req, res) => {
   const { totalSalary, budgetTables: incoming } = req.body;
