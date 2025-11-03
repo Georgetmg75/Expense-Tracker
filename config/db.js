@@ -7,7 +7,6 @@ if (!MONGO_URI) {
   throw new Error('❌ MONGO_URI missing!');
 }
 
-// CACHE
 let cached = global.mongoose;
 if (!cached) cached = global.mongoose = { conn: null, promise: null };
 
@@ -27,16 +26,23 @@ const connectDB = async () => {
       maxPoolSize: 10,
       minPoolSize: 5,
       family: 4,
-      keepAlive: true,  // FIXED: camelCase
-      keepAliveInitialDelay: 300000,
       retryWrites: true,
       w: 'majority'
+      // REMOVED: keepAlive & keepAliveInitialDelay → NOT SUPPORTED HERE
+    }).then((client) => {
+      // APPLY KEEPALIVE MANUALLY
+      client.connection.getClient().options = {
+        ...client.connection.getClient().options,
+        keepAlive: true,
+        keepAliveInitialDelay: 300000
+      };
+      return client;
     });
   }
 
   try {
     cached.conn = await cached.promise;
-    console.log('🎉 DB CONNECTED & LOCKED');
+    console.log('🎉 DB CONNECTED & KEEPALIVE ON');
 
     // PING EVERY 30 SEC
     setInterval(() => {
@@ -60,53 +66,3 @@ mongoose.connection.on('error', (err) => console.error('❌ DB ERROR:', err));
 mongoose.connection.on('disconnected', () => console.log('⚠️ DB DISCONNECTED'));
 
 export default connectDB;
-
-
-
-
-
-// import mongoose from 'mongoose';
-
-// const MONGO_URI = process.env.MONGO_URI;
-
-// if (!MONGO_URI) {
-//   throw new Error('❌ MONGO_URI is missing from environment variables');
-// }
-
-// let cached = global.mongoose;
-
-// if (!cached) {
-//   cached = global.mongoose = { conn: null, promise: null };
-// }
-
-// const connectDB = async () => {
-//   if (cached.conn) {
-//     console.log('✅ Using cached MongoDB connection');
-//     return cached.conn;
-//   }
-
-//   if (!cached.promise) {
-//     console.log('🔌 Connecting to MongoDB...');
-//     cached.promise = mongoose.connect(MONGO_URI, {
-//       bufferCommands: false,
-//       serverSelectionTimeoutMS: 30000,
-//       socketTimeoutMS: 45000,
-//       family: 4,
-//       maxPoolSize: 5,
-//     });
-//   }
-
-//   cached.conn = await cached.promise;
-
-//   mongoose.connection.on('connected', () => {
-//     console.log('✅ MongoDB connected via event');
-//   });
-
-//   mongoose.connection.on('error', (err) => {
-//     console.error('❌ MongoDB connection error via event:', err);
-//   });
-
-//   return cached.conn;
-// };
-
-// export default connectDB;
