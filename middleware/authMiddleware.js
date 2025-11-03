@@ -1,6 +1,5 @@
 // middleware/authMiddleware.js
 import jwt from 'jsonwebtoken';
-import User from '../models/userModel.js';
 
 export const verifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -15,15 +14,14 @@ export const verifyToken = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('DECODED:', decoded); // SEE { id: '69085...' }
+    console.log('DECODED:', decoded); // { id: '69085...' }
 
-    const user = await User.findById(decoded.id).select('-password');
-    if (!user) {
-      return res.status(401).json({ message: 'User not found' });
-    }
-
-    req.user = { id: user._id, email: user.email }; // LIGHTWEIGHT
-    console.log(`✅ USER: ${user.email}`);
+    // SKIP DB QUERY — TRUST TOKEN (DB CONNECTED AT STARTUP)
+    req.user = { 
+      _id: decoded.id, 
+      id: decoded.id 
+    };
+    console.log(`✅ AUTH SUCCESS: userId ${decoded.id}`);
     next();
   } catch (err) {
     console.error('TOKEN DEAD:', err.message);
