@@ -3,10 +3,16 @@ import Transaction from '../models/transactionModel.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 
 export const fetchTransactions = asyncHandler(async (req, res) => {
-  const filters = { userId: req.user.id, ...req.query };
+  const filters = { userId: req.user._id, ...req.query };
   const transactions = await Transaction.find(filters).sort({ date: -1 });
+
+  if (!Array.isArray(transactions)) {
+    return res.status(500).json({ message: 'Transactions is not an array' });
+  }
+
   res.json(transactions);
 });
+
 
 export const addTransaction = async (req, res, next) => {
   const newTx = new Transaction({ ...req.body, userId: req.user.id });
