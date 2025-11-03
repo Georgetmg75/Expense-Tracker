@@ -4,16 +4,8 @@ import connectDB from './config/db.js';
 import app from './app.js';
 import { createHandler } from 'serverless-http';
 
-// CONNECT DB FIRST — BEFORE ANYTHING
-(async () => {
-  try {
-    await connectDB();
-    console.log('🚀 MONGODB CONNECTED AT STARTUP');
-  } catch (err) {
-    console.error('💀 DB FAILED TO CONNECT:', err);
-    process.exit(1);
-  }
-})();
+await connectDB();
+console.log('🚀 MONGODB CONNECTED AT STARTUP');
 
 // CREATE HANDLER ONCE
 let handler = null;
