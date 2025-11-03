@@ -1,21 +1,23 @@
-// src/routes/transactionRoutes.js
+// routes/transactionRoutes.js
 import express from 'express';
 import Transaction from '../models/transactionModel.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// ✅ Apply middleware to all routes below
-router.use(verifyToken);
-
-// ✅ GET: Fetch transactions for authenticated user
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
   try {
-    const transactions = await Transaction.find({ userId: req.userId });
+    const userId = req.user._id;
+    console.log('FETCH TRANSACTIONS FOR:', userId);
+
+    const transactions = await Transaction.find({ userId })
+      .sort({ date: -1 })
+      .lean(); // FASTER
+
     res.json(transactions);
   } catch (err) {
-    console.error('Transaction fetch error:', err.message);
-    res.status(500).json({ message: 'Failed to fetch transactions' });
+    console.error('TRANSACTIONS ERROR:', err.message);
+    res.status(500).json({ message: 'Failed to load transactions' });
   }
 });
 

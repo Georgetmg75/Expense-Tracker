@@ -4,25 +4,28 @@ import connectDB from './config/db.js';
 import app from './app.js';
 import { createHandler } from 'serverless-http';
 
-await connectDB();
-console.log('🚀 MONGODB CONNECTED AT STARTUP');
+// CONNECT DB **FIRST** — NO DELAY
+(async () => {
+  try {
+    await connectDB();
+    console.log('🚀 MONGODB CONNECTED AT STARTUP');
+  } catch (err) {
+    console.error('💀 DB CRASH:', err);
+    process.exit(1);
+  }
+})();
 
-// CREATE HANDLER ONCE
+// HANDLER
 let handler = null;
-
 const handlerFunction = async (event, context) => {
   if (!handler) {
     handler = createHandler(app);
-    console.log('🔥 SERVERLESS HANDLER READY');
+    console.log('🔥 HANDLER READY');
   }
-
   return handler(event, context);
 };
 
 export default handlerFunction;
-
-
-
 
 
 
