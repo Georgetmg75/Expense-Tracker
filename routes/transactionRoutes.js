@@ -1,6 +1,6 @@
-// routes/transactionRoutes.js
+// routes/dashboardRoutes.js
 import express from 'express';
-import Transaction from '../models/transactionModel.js';
+import Dashboard from '../models/dashboardModel.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -8,28 +8,45 @@ const router = express.Router();
 router.get('/', verifyToken, async (req, res) => {
   try {
     const userId = req.user._id;
-    console.log('FETCH TRANSACTIONS FOR:', userId);
+    console.log('GET DASHBOARD FOR userId:', userId);
 
-    const transactions = await Transaction.find({ userId })
-      .sort({ date: -1 })
-      .lean(); // FASTER
+    const dashboard = await Dashboard.findOne({ userId }).lean();
 
-    res.json(transactions);
+    if (!dashboard) {
+      return res.json({ totalSalary: 0, budgetTables: {} });
+    }
+
+    const plainBudget = Object.fromEntries(dashboard.budgetTables);
+
+    res.json({
+      totalSalary: dashboard.totalSalary || 0,
+      budgetTables: plainBudget
+    });
   } catch (err) {
-    console.error('TRANSACTIONS ERROR:', err.message);
-    res.status(500).json({ message: 'Failed to load transactions' });
+    console.error('GET ERROR:', err.message);
+    res.status(500).json({ message: 'Failed to load dashboard' });
   }
 });
 
-// ✅ POST: Add new transaction for authenticated user
-router.post('/', async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
+  const { totalSalary, budgetTables: incoming } = req.body;
+  const userId = req.user._id;
+
   try {
-    const transaction = new Transaction({ ...req.body, userId: req.userId });
-    await transaction.save();
-    res.status(201).json(transaction);
+    console.log('SAVE DASHBOARD FOR userId:', userId);
+
+    const normalized = new Map(Object.entries(incoming || {}));
+
+    const updated = await Dashboard.findOneAndUpdate(
+      { userId },
+      { totalSalary: Number(totalSalary) || 0, budgetTables: normalized },
+      { upsert: true, new: true }
+    ).lean();
+
+    res.json({ message: 'Saved!', totalSalary: updated.totalSalary });
   } catch (err) {
-    console.error('Transaction save error:', err.message);
-    res.status(400).json({ message: 'Failed to add transaction' });
+    console.error('SAVE ERROR:', err.message);
+    res.status(500).json({ message: 'Save failed' });
   }
 });
 

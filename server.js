@@ -4,7 +4,7 @@ import connectDB from './config/db.js';
 import app from './app.js';
 import { createHandler } from 'serverless-http';
 
-// CONNECT DB **FIRST**
+// CONNECT DB **IMMEDIATELY**
 await connectDB();
 console.log('🚀 MONGODB CONNECTED AT STARTUP');
 
