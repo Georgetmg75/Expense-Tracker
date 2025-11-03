@@ -2,38 +2,31 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
 
-/**
- * Middleware to verify JWT token and attach user to request
- */
 export const verifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    console.log('❌ Missing or malformed token');
-    return res.status(401).json({ message: 'No token provided' });
+    console.log('❌ NO TOKEN');
+    return res.status(401).json({ message: 'No token' });
   }
 
   const token = authHeader.split(' ')[1];
-
-  if (!process.env.JWT_SECRET) {
-    console.error('❌ JWT_SECRET is not defined in environment');
-    return res.status(500).json({ message: 'Server misconfiguration: missing JWT secret' });
-  }
+  console.log('TOKEN:', token.substring(0, 20) + '...');
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('DECODED:', decoded); // SEE { id: '69085...' }
 
     const user = await User.findById(decoded.id).select('-password');
     if (!user) {
-      console.warn(`❌ Token valid but user not found: ${decoded.id}`);
       return res.status(401).json({ message: 'User not found' });
     }
 
-    req.user = user; // ✅ Attach full user object for downstream use
-    console.log(`✅ Authenticated user: ${user.email}`);
+    req.user = { id: user._id, email: user.email }; // LIGHTWEIGHT
+    console.log(`✅ USER: ${user.email}`);
     next();
   } catch (err) {
-    console.error(`❌ Token verification failed: ${err.message}`);
+    console.error('TOKEN DEAD:', err.message);
     res.status(401).json({ message: 'Invalid or expired token' });
   }
 };
