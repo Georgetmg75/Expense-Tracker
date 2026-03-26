@@ -20,8 +20,7 @@ app.set('trust proxy', 1);
 // ✅ CORS setup
 app.use(cors({
   origin: [
-    'https://expense-tracker-frontend-iota-seven.vercel.app/',
-    'http://localhost:5173',
+    'https://expense-tracker-frontend-iota-seven.vercel.app'
   ],
   credentials: true,
 }));
